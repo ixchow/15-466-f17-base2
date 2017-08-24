@@ -21,6 +21,7 @@ struct Draw {
 	void draw();
 
 	//----- internals -----
+	//simple class for holding on to position + color attribute:
 	struct Vertex {
 		Vertex(glm::vec2 const &v_, glm::u8vec4 const &c_)
 			: v(v_), c(c_) {
@@ -29,5 +30,6 @@ struct Draw {
 		glm::u8vec4 c;
 	};
 	static_assert(sizeof(Vertex) == 12, "Vertex is tightly packed.");
+	//list of triangles to draw next call to "draw()":
 	std::vector< Vertex > vertices;
 };

@@ -18,17 +18,23 @@ void Draw::add_rectangle(glm::vec2 const &min, glm::vec2 const &max, glm::u8vec4
 static GLuint compile_shader(GLenum type, std::string const &source);
 
 void Draw::draw() {
-	//draw() uses a very simple vertex and fragment shader, which is compiled the first time the draw() function is called:
+	//draw() uses a very simple vertex and fragment shader, which is compiled the first time the draw() function is called.
+
+	//----- initialization code -----
+
 	//attribute locations for program:
 	#define program_Position 0
 	#define program_Color 1
 	static GLuint program = [](){
 		GLuint program = 0;
-		//initialization code:
+
+		//STR( program_Position ) evaluates to a quoted version of program_Position, i.e., "0"
+		#define STR_( X ) # X
+		#define STR( X ) STR_( X )
 		GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER,
 			"#version 330\n"
-			"layout(location = 0) in vec4 Position;\n"
-			"layout(location = 1) in vec4 Color;\n"
+			"layout(location = " STR(program_Position) ") in vec4 Position;\n"
+			"layout(location = " STR(program_Color) ") in vec4 Color;\n"
 			"out vec4 color;\n"
 			"void main() {\n"
 			"	gl_Position = Position;\n"

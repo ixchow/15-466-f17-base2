@@ -55,10 +55,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	//Load OpenGL functions (on windows, where you *only* get OpenGL 1.1):
-	//TODO
-
-	//Set VSYNC + Late Swap (prevents crazy frame-rates):
+	//Set VSYNC + Late Swap (prevents crazy FPS):
 	if (SDL_GL_SetSwapInterval(-1) != 0) {
 		std::cerr << "NOTE: couldn't set vsync + late swap tearing (" << SDL_GetError() << ")." << std::endl;
 		if (SDL_GL_SetSwapInterval(1) != 0) {
@@ -66,31 +63,59 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	//Hide mouse cursor (note: showing can be useful for debugging):
+	SDL_ShowCursor(SDL_DISABLE);
+
+	//------------  game state ------------
+
+	glm::vec2 mouse = glm::vec2(0.0f, 0.0f);
+	glm::vec2 ball = glm::vec2(0.0f, 0.0f);
+	glm::vec2 ball_velocity = glm::vec2(0.5f, 0.5f);
+
 	//------------  game loop ------------
 
+	auto previous_time = std::chrono::high_resolution_clock::now();
 	bool should_quit = false;
 	while (true) {
-		//handle input:
 		static SDL_Event evt;
 		while (SDL_PollEvent(&evt) == 1) {
-			if (evt.type == SDL_QUIT) {
+			//handle input:
+			if (evt.type == SDL_MOUSEMOTION) {
+				mouse.x = (evt.motion.x + 0.5f) / float(config.size.x) * 2.0f - 1.0f;
+				mouse.y = (evt.motion.y + 0.5f) / float(config.size.y) *-2.0f + 1.0f;
+			} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
+				ball = mouse;
+				ball_velocity = glm::vec2(0.5f, 0.5f);
+			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
+				should_quit = true;
+			} else if (evt.type == SDL_QUIT) {
 				should_quit = true;
 				break;
 			}
 		}
 		if (should_quit) break;
 
-		//update game:
-		//TODO
+		auto current_time = std::chrono::high_resolution_clock::now();
+		float elapsed = std::chrono::duration< float >(current_time - previous_time).count();
+		previous_time = current_time;
+
+		{ //update game state:
+			ball += elapsed * ball_velocity;
+			if (ball.x < -1.0f) ball_velocity.x = std::abs(ball_velocity.x);
+			if (ball.x >  1.0f) ball_velocity.x =-std::abs(ball_velocity.x);
+			if (ball.y < -1.0f) ball_velocity.y = std::abs(ball_velocity.y);
+			if (ball.y >  1.0f) ball_velocity.y =-std::abs(ball_velocity.y);
+		}
 
 		//draw output:
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 
-		{ //generate and draw scene as some quads:
+		{ //draw game state:
 			Draw draw;
-			draw.add_rectangle(glm::vec2(0.0f, 0.0f), glm::vec2(0.1f, 0.1f), glm::u8vec4(0xff, 0xff, 0x00, 0xff));
+			draw.add_rectangle(mouse + glm::vec2(-0.1f,-0.1f), mouse + glm::vec2(0.1f, 0.1f), glm::u8vec4(0xff, 0xff, 0x00, 0xff));
+			draw.add_rectangle(ball + glm::vec2(-0.05f,-0.05f), ball + glm::vec2(0.05f, 0.05f), glm::u8vec4(0xff, 0x00, 0xff, 0xff));
 			draw.draw();
 		}
 
