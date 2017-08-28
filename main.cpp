@@ -10,7 +10,7 @@
 int main(int argc, char **argv) {
 	//Configuration:
 	struct {
-		std::string title = "Game1: Only Rectangles";
+		std::string title = "Game0: Tennis For One";
 		glm::uvec2 size = glm::uvec2(640, 480);
 	} config;
 
