@@ -17,13 +17,13 @@ On Linux or OSX these requirements should be available from your package manager
 Building
 ========
 Linux:
-'''
+```
   g++ -g -Wall -Werror -o main main.cpp `sdl2-config --cflags --libs` -lGL
-'''
+```
 
 OSX:
-'''
+```
   clang++ -g -Wall -Werror -o main main.cpp `sdl2-config --cflags --libs`
-'''
+```
 
 
