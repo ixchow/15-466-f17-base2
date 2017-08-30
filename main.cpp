@@ -55,6 +55,14 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	#ifdef _WIN32
+	//On windows, load OpenGL extensions:
+	if (!init_gl_shims()) {
+		std::cerr << "ERROR: failed to initialize shims." << std::endl;
+		return 1;
+	}
+	#endif
+
 	//Set VSYNC + Late Swap (prevents crazy FPS):
 	if (SDL_GL_SetSwapInterval(-1) != 0) {
 		std::cerr << "NOTE: couldn't set vsync + late swap tearing (" << SDL_GetError() << ")." << std::endl;

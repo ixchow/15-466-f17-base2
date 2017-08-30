@@ -2,6 +2,7 @@
 #include "GL.hpp"
 
 #include <iostream>
+#include <string>
 
 void Draw::add_rectangle(glm::vec2 const &min, glm::vec2 const &max, glm::u8vec4 const &color) {
 	//split rectangle into two triangles, and add both to vertex list:

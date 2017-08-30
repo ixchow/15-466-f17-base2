@@ -1,2 +1,4 @@
 main
+main.exe
 objs
+SDL2.dll
