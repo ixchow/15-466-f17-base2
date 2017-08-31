@@ -22,7 +22,7 @@ On Linux or OSX these requirements should be available from your package manager
 ```
 or:
 ```
-	make
+  make
 ```
 
 ### OSX
@@ -31,7 +31,7 @@ or:
 ```
 or:
 ```
-	make
+  make
 ```
 
 ### Windows
