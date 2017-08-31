@@ -1,6 +1,7 @@
+KIT_LIBS=kit-libs-win
 
-CPP=cl.exe /nologo /c /EHsc /W3 /WX /MD /I"../kit-libs-win/out/include" /I"../kit-libs-win/out/include/SDL2"
-LINK=link.exe /nologo /SUBSYSTEM:CONSOLE /LIBPATH:"../kit-libs-win/out/lib"
+CPP=cl.exe /nologo /c /EHsc /W3 /WX /MD /I"$(KIT_LIBS)/out/include" /I"$(KIT_LIBS)/out/include/SDL2"
+LINK=link.exe /nologo /SUBSYSTEM:CONSOLE /LIBPATH:"$(KIT_LIBS)/out/lib"
 LIBS=SDL2main.lib SDL2.lib OpenGL32.lib
 
 main : objs/main.obj objs/draw.obj objs/gl_shims.obj
@@ -10,6 +11,7 @@ main : objs/main.obj objs/draw.obj objs/gl_shims.obj
 clean :
 	if exist objs rmdir /S /Q objs
 	if exist main del main
+	if exist SDL2.dll del SDL2.dll
 
 objs/main.obj : main.cpp Draw.hpp GL.hpp glcorearb.h
 	if not exist objs mkdir objs
