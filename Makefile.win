@@ -6,7 +6,7 @@ LIBS=SDL2main.lib SDL2.lib OpenGL32.lib
 
 main : objs/main.obj objs/draw.obj objs/gl_shims.obj
 	$(LINK) /out:main.exe objs/main.obj objs/draw.obj objs/gl_shims.obj $(LIBS)
-	copy ..\kit-libs-win\out\dist\SDL2.dll .
+	copy $(KIT_LIBS)\out\dist\SDL2.dll .
 
 clean :
 	if exist objs rmdir /S /Q objs
