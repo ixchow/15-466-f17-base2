@@ -31,7 +31,14 @@ Now you can build using the '.local' Makefile:
 
 ### OSX
 
-(TBD -- no local libs package yet)
+Clone [kit-libs-osx](https://github.com/ixchow/kit-libs-osx) into the `kit-libs-osx` subdirectory:
+```
+  git clone https://github.com/ixchow/kit-libs-osx
+```
+Now you can build using the '.local' Makefile:
+```
+  make -f Makefile.local
+```
 
 ### Windows
 

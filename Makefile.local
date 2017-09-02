@@ -3,8 +3,15 @@
 UNAME=$(shell uname -s)
 ifeq ($(UNAME),Darwin)
 	#OSX/llvm
-	CPP=clang++ `sdl2-config --cflags` -std=c++14 -g -Wall -Werror
-	SDL_LIBS=`sdl2-config --libs` -framework OpenGL
+	CPP=clang++ -std=c++14 -g -Wall -Werror -Ikit-libs-osx/out/include/ -Ikit-libs-osx/out/include/SDL2 -D_THREAD_SAFE
+	SDL_LIBS=-lSDL2 -lm -liconv -lobjc \
+		-Wl,-framework,CoreAudio \
+		-Wl,-framework,AudioToolbox \
+		-Wl,-framework,CoreVideo \
+		-Wl,-framework,Cocoa \
+		-Wl,-framework,Carbon \
+		-Wl,-framework,IOKit \
+		-Wl,-framework,OpenGL
 else
 	#assume Linux/g++
 	CPP=g++ -std=c++11 -g -Wall -Werror -Ikit-libs-linux/out/include -Ikit-libs-linux/out/include/SDL2
