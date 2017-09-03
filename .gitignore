@@ -2,4 +2,4 @@ main
 main.exe
 objs
 SDL2.dll
-kit-libs-win
+kit-libs-*
