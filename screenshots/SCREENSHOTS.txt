@@ -1,0 +1,11 @@
+Please include at least one screenshot in this folder when turning in your game.
+Screenshots should be in PNG format and should not include window chrome.
+
+Taking a screenshot:
+ Windows: press the printscreen key to copy a screen image to the clipboard.
+ OSX: Command-Shift-4, select a region of the screen. Screenshot placed on the desktop. (Alternatively, use `screencapture` from the command line.)
+ Linux: If you have imagemagick installed, `import screen.png` then click on the game window.
+
+Taking a screenshot (alternate method):
+ Install GIMP (https://www.gimp.org).
+ Use "File > Create > Screenshot..." in GIMP.

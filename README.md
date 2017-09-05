@@ -1,16 +1,38 @@
-# Base0
+NOTE: please fill in the first section with information about your game.
 
-Base0 is the starter code for the game0 in the 15-466-f17 course. It was developed by Jim McCann, and is hereby released into the public domain.
+# *Game Title*
 
-Note that Base0 is attempting to illustrate a very straightfoward "get it done" philosophy of game code design -- I've purposefully removed some of the conveniences one typically uses to sweep things under the rug.
+*Game Title* is *Your Name*'s implementation of [*Design Document*](http://graphics.cs.cmu.edu/courses/15-466-f17/game1-designs/put-real-link-here) for game1 in 15-466-f17.
 
-This is because game0 *does not need* such conveniences. It is simple because game0 is simple.
+## Build Notes
+
+*Include any special notes or steps required to build your game here. If there are no special notes, delete this section.*
+
+## Asset Pipeline
+
+*Briefly describe the asset pipeline for this game. What sorts of source files are used? How are they processed? How are they loaded?*
+
+## Architecture
+
+*Provide a brief introduction to how you implemented the design. Talk about the basic structure of your code.*
+
+## Reflection
+
+*Reflect on the assignment. What was difficult? What worked well? If you were doing it again, what would you change?*
+
+*Reflect on the design document. What was clear and what was ambiguous? How did you resolve the ambiguities?*
+
+
+# About Base1
+
+This game is based on Base1, starter code for game1 in the 15-466-f17 course. It was developed by Jim McCann, and is released into the public domain.
 
 ## Requirements
 
  - modern C++ compiler
  - glm
  - libSDL2
+ - libpng
 
 On Linux or OSX these requirements should be available from your package manager without too much hassle.
 
