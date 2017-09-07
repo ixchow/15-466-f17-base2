@@ -183,6 +183,13 @@ int main(int argc, char **argv) {
 		glEnableVertexAttribArray(program_Color);
 	}
 
+	//------------ sprite info ------------
+	struct SpriteInfo {
+		glm::vec2 min_uv;
+		glm::vec2 max_uv;
+		glm::vec2 rad;
+	};
+
 
 	//------------ game state ------------
 
@@ -243,6 +250,25 @@ int main(int argc, char **argv) {
 				verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(1.0f, 1.0f), tint);
 				verts.emplace_back(verts.back());
 			};
+
+			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at) {
+				glm::vec2 min_uv = sprite.min_uv;
+				glm::vec2 max_uv = sprite.max_uv;
+				glm::vec2 rad = sprite.rad;
+				glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
+
+				verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(min_uv.x, min_uv.y), tint);
+				verts.emplace_back(verts.back());
+				verts.emplace_back(at + glm::vec2(-rad.x, rad.y), glm::vec2(min_uv.x, max_uv.y), tint);
+				verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(max_uv.x, min_uv.y), tint);
+				verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(max_uv.x, max_uv.y), tint);
+				verts.emplace_back(verts.back());
+			};
+
+
+			//Draw a sprite "player" at position (5.0, 2.0):
+			static SpriteInfo player = load_sprite("player"); //TODO: hoist
+			draw_sprite(player, glm::vec2(5.0, 2.0));
 
 			rect(glm::vec2(0.0f, 0.0f), glm::vec2(4.0f), glm::u8vec4(0xff, 0x00, 0x00, 0xff));
 			rect(mouse * camera.radius + camera.at, glm::vec2(4.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
