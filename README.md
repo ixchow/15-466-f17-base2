@@ -4,6 +4,8 @@ NOTE: please fill in the first section with information about your game.
 
 *Game Title* is *Your Name*'s implementation of [*Design Document*](http://graphics.cs.cmu.edu/courses/15-466-f17/game1-designs/put-real-link-here) for game1 in 15-466-f17.
 
+*Include a Screenshot Here*
+
 ## Build Notes
 
 *Include any special notes or steps required to build your game here. If there are no special notes, delete this section.*
