@@ -2,7 +2,19 @@
 #---- setup ----
 
 if $(OS) = NT {
-	NAMES += gl_shims ;
+	C++FLAGS = /nologo /c /EHsc /W3 /WX /MD /I"kit-libs-win/out/include" /I"kit-libs-win/out/include/SDL2" /I"kit-libs-win/out/libpng"
+		#disable a few warnings:
+		/wd4146 #-1U is still unsigned
+		/wd4297 #unforunately SDLmain is nothrow
+	;
+	LINKFLAGS = /nologo /SUBSYSTEM:CONSOLE
+		/LIBPATH:"kit-libs-win/out/lib"
+		/LIBPATH:"kit-libs-win/out/libpng"
+		/LIBPATH:"kit-libs-win/out/zlib"
+	;
+	LINKLIBS = SDL2main.lib SDL2.lib OpenGL32.lib libpng.lib zlib.lib ;
+
+	File dist\\SDL2.dll : kit-libs-win\\out\\dist\\SDL2.dll ;
 } else if $(OS) = MACOSX {
 	C++ = clang++ ;
 	C++FLAGS =
@@ -46,6 +58,10 @@ NAMES =
 	main
 	load_save_png
 	;
+
+if $(OS) = NT {
+	NAMES += gl_shims ;
+}
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory
 Objects $(NAMES:S=.cpp) ;
