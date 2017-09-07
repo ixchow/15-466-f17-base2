@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <stdexcept>
 
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
