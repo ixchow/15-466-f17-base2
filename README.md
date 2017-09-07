@@ -36,71 +36,36 @@ This game is based on Base1, starter code for game1 in the 15-466-f17 course. It
 
 On Linux or OSX these requirements should be available from your package manager without too much hassle.
 
-## Building (Local Libraries)
+## Building
 
-If you are building on a system where you are unable to install libraries, you may wish to use one of the pre-built library repositories:
+This code has been set up to be built with [FT jam](https://www.freetype.org/jam/).
 
-### Linux
+### Getting Jam
 
-Clone [kit-libs-linux](https://github.com/ixchow/kit-libs-linux) into the `kit-libs-linux` subdirectory:
-```
-  git clone https://github.com/ixchow/kit-libs-linux
-```
-Now you can build using the '.local' Makefile:
-```
-  make -f Makefile.local
-```
+For more information on Jam, see the [Jam Documentation](https://www.perforce.com/documentation/jam-documentation) page at Perforce, which includes both reference documentation and a getting started guide.
 
-### OSX
-
-Clone [kit-libs-osx](https://github.com/ixchow/kit-libs-osx) into the `kit-libs-osx` subdirectory:
+On unixish OSs, Jam is available from your package manager:
 ```
-  git clone https://github.com/ixchow/kit-libs-osx
-```
-Now you can build using the '.local' Makefile:
-```
-  make -f Makefile.local
+	brew install ftjam #on OSX
+	apt get ftjam #on Debian-ish Linux
 ```
 
-### Windows
+On Windows, you can get a binary [from sourceforge](https://sourceforge.net/projects/freetype/files/ftjam/2.5.2/ftjam-2.5.2-win32.zip/download),
+and put it somewhere in your `%PATH%`.
+(Possibly: also set the `JAM_TOOLSET` variable to `VISUALC`.)
 
-Clone [kit-libs-win](https://github.com/ixchow/kit-libs-win) into the `kit-libs-win` subdirectory:
+### Bulding
+Open a terminal (on windows, a Visual Studio Command Prompt), change to this directory, and type:
 ```
-  git clone https://github.com/ixchow/kit-libs-win
-```
-Now you can:
-```
-  nmake -f Makefile.win
-```
-or:
-```
-  cl.exe /EHsc /W3 /WX /MD /Ikit-libs-win\out\include /Ikit-libs-win\out\include\SDL2 main.cpp Draw.cpp gl_shims.cpp /link /SUBSYSTEM:CONSOLE /LIBPATH:kit-libs-win\out\lib SDL2main.lib SDL2.lib OpenGL32.lib
-  copy kit-libs-win\out\dist\SDL2.dll .
+	jam
 ```
 
+### Building (local libs)
 
-## Building (System Libraries)
+Depending on your OSX, clone 
+[kit-libs-linux](https://github.com/ixchow/kit-libs-linux),
+[kit-libs-osx](https://github.com/ixchow/kit-libs-osx),
+or [kit-libs-win](https://github.com/ixchow/kit-libs-win)
+as a subdirectory of the current directory.
 
-If you are building on a system where you can install libraries easily, then you may wish to build against versions of the required libraries installed by your favorite package manager.
-
-### Linux
-```
-  g++ -g -Wall -Werror -o main main.cpp Draw.cpp `sdl2-config --cflags --libs` -lGL
-```
-or:
-```
-  make
-```
-
-### OSX
-```
-  clang++ -g -Wall -Werror -o main main.cpp Draw.cpp `sdl2-config --cflags --libs`
-```
-or:
-```
-  make
-```
-
-### Windows
-
-Every scheme I am aware of for "globally installing" libraries on Windows seems like a hack.
+The Jamfile sets up library and header search paths such that local libraries will be preferred over system libraries.

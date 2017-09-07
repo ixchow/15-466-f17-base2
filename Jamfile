@@ -1,0 +1,46 @@
+
+#---- setup ----
+
+if $(OS) = NT {
+	NAMES += gl_shims ;
+} else if $(OS) = MACOSX {
+	C++ = clang++ ;
+	C++FLAGS =
+		-std=c++14 -g -Wall -Werror
+		-Ikit-libs-osx/out -Ikit-libs-osx/out/SDL2      #local libs
+		-I/usr/local/include -I/usr/local/include/SDL2  #system libs
+		-D_THREAD_SAFE #for some reason, SDL wants this
+		;
+	LINK = clang++ ;
+	LINKFLAGS = -std=c++14 -g -Wall -Werror
+		-Lkit-libs-osx/out/lib   #local libs
+		-L/usr/local/lib         #system libs
+		-lSDL2 -lpng -framework OpenGL
+		#misc SDL dependencies:
+		-liconv -lobjc
+ 		-framework CoreAudio
+		-framework AudioToolbox
+		-framework CoreVideo
+		-framework Cocoa
+		-framework Carbon
+		-framework IOKit
+		;
+} else if $(OS) = LINUX {
+	C++ = g++ ;
+	C++FLAGS = -std=c++11 -g -Wall -Werror `sdl2-config --cflags` ;
+	LINK = g++ ;
+	LINKFLAGS = -std=c++11 -g -Wall -Werror `sdl2-config --libs` -lpng ;
+}
+
+#---- build ----
+
+NAMES =
+	main
+	load_save_png
+	;
+
+LOCATE_TARGET = objs ; #put objects in 'objs' directory
+Objects $(NAMES:S=.cpp) ;
+
+LOCATE_TARGET = dist ; #put main in 'dist' directory
+MainFromObjects main : $(NAMES:S=$(SUFOBJ)) ;
