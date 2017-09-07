@@ -27,9 +27,17 @@ if $(OS) = NT {
 		;
 } else if $(OS) = LINUX {
 	C++ = g++ ;
-	C++FLAGS = -std=c++11 -g -Wall -Werror `sdl2-config --cflags` ;
+	C++FLAGS =
+		-std=c++11 -g -Wall -Werror
+		-Ikit-libs-osx/out -Ikit-libs-osx/out/SDL2      # local libs
+		-I/usr/include/SDL2                             # system libs
+ 		-D_REENTRANT #for some reason, SDL wants this
+		;
 	LINK = g++ ;
-	LINKFLAGS = -std=c++11 -g -Wall -Werror `sdl2-config --libs` -lpng ;
+	LINKFLAGS = -std=c++11 -g -Wall -Werror
+		-Lkit-libs-linux/out/lib -Wl,-rpath,kit-libs-linux/out/lib #local libs
+	;
+	LINKLIBS = -lSDL2 -lm -ldl -lpthread -lGL -lpng -lz ;
 }
 
 #---- build ----
