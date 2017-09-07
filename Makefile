@@ -11,19 +11,19 @@ else
 	SDL_LIBS=`sdl2-config --libs` -lGL
 endif
 
-all : main
+all : dist/main
 
 clean :
 	rm -rf main objs
 
-main : objs/main.o objs/Draw.o
-	$(CPP) -o $@ $^ $(SDL_LIBS)
+dist/main : objs/main.o objs/load_save_png.o
+	$(CPP) -o $@ $^ $(SDL_LIBS) -lpng
 
 
-objs/main.o : main.cpp Draw.hpp GL.hpp glcorearb.h
+objs/main.o : main.cpp Draw.hpp GL.hpp glcorearb.h load_save_png.hpp
 	mkdir -p objs
 	$(CPP) -c -o $@ $< `sdl2-config --cflags`
 
-objs/Draw.o : Draw.cpp Draw.hpp GL.hpp glcorearb.h
+objs/load_save_png.o : load_save_png.cpp load_save_png.hpp
 	mkdir -p objs
-	$(CPP) -c -o $@ $< `sdl2-config --cflags`
+	$(CPP) -c -o $@ $<
