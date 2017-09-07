@@ -191,6 +191,7 @@ int main(int argc, char **argv) {
 		glm::vec2 rad = glm::vec2(0.5f);
 	};
 
+
 	auto load_sprite = [](std::string const &name) -> SpriteInfo {
 		SpriteInfo info;
 		//TODO: look up sprite name in table of sprite infos
@@ -258,24 +259,26 @@ int main(int argc, char **argv) {
 				verts.emplace_back(verts.back());
 			};
 
-			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at) {
+			auto draw_sprite = [&verts](SpriteInfo const &sprite, glm::vec2 const &at, float angle = 0.0f) {
 				glm::vec2 min_uv = sprite.min_uv;
 				glm::vec2 max_uv = sprite.max_uv;
 				glm::vec2 rad = sprite.rad;
 				glm::u8vec4 tint = glm::u8vec4(0xff, 0xff, 0xff, 0xff);
+				glm::vec2 right = glm::vec2(std::cos(angle), std::sin(angle));
+				glm::vec2 up = glm::vec2(-right.y, right.x);
 
-				verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(min_uv.x, min_uv.y), tint);
+				verts.emplace_back(at + right * -rad.x + up * -rad.y, glm::vec2(min_uv.x, min_uv.y), tint);
 				verts.emplace_back(verts.back());
-				verts.emplace_back(at + glm::vec2(-rad.x, rad.y), glm::vec2(min_uv.x, max_uv.y), tint);
-				verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(max_uv.x, min_uv.y), tint);
-				verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(max_uv.x, max_uv.y), tint);
+				verts.emplace_back(at + right * -rad.x + up * rad.y, glm::vec2(min_uv.x, max_uv.y), tint);
+				verts.emplace_back(at + right *  rad.x + up * -rad.y, glm::vec2(max_uv.x, min_uv.y), tint);
+				verts.emplace_back(at + right *  rad.x + up *  rad.y, glm::vec2(max_uv.x, max_uv.y), tint);
 				verts.emplace_back(verts.back());
 			};
 
 
 			//Draw a sprite "player" at position (5.0, 2.0):
 			static SpriteInfo player = load_sprite("player"); //TODO: hoist
-			draw_sprite(player, glm::vec2(5.0, 2.0));
+			draw_sprite(player, glm::vec2(5.0, 2.0), 0.2f);
 
 			rect(glm::vec2(0.0f, 0.0f), glm::vec2(4.0f), glm::u8vec4(0xff, 0x00, 0x00, 0xff));
 			rect(mouse * camera.radius + camera.at, glm::vec2(4.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
