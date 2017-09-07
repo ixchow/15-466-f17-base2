@@ -185,9 +185,15 @@ int main(int argc, char **argv) {
 
 	//------------ sprite info ------------
 	struct SpriteInfo {
-		glm::vec2 min_uv;
-		glm::vec2 max_uv;
-		glm::vec2 rad;
+		glm::vec2 min_uv = glm::vec2(0.0f);
+		glm::vec2 max_uv = glm::vec2(1.0f);
+		glm::vec2 rad = glm::vec2(0.5f);
+	};
+
+	auto load_sprite = [](std::string const &name) -> SpriteInfo {
+		SpriteInfo info;
+		//TODO: look up sprite name in table of sprite infos
+		return info;
 	};
 
 
