@@ -54,6 +54,7 @@ if $(OS) = NT {
 NAMES =
 	main
 	load_save_png
+	Scene
 	;
 
 if $(OS) = NT {
