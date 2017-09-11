@@ -25,9 +25,9 @@ NOTE: please fill in the first section with information about your game.
 *Reflect on the design document. What was clear and what was ambiguous? How did you resolve the ambiguities?*
 
 
-# About Base1
+# About Base2
 
-This game is based on Base1, starter code for game1 in the 15-466-f17 course. It was developed by Jim McCann, and is released into the public domain.
+This game is based on Base2, starter code for game2 in the 15-466-f17 course. It was developed by Jim McCann, and is released into the public domain.
 
 ## Requirements
 
@@ -35,6 +35,7 @@ This game is based on Base1, starter code for game1 in the 15-466-f17 course. It
  - glm
  - libSDL2
  - libpng
+ - blender (for mesh export script)
 
 On Linux or OSX these requirements should be available from your package manager without too much hassle.
 
