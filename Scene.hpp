@@ -19,7 +19,7 @@ struct Scene {
 	struct Camera {
 		Transform transform;
 		//camera parameters (perspective):
-		float fovy = 60.0f; //vertical fov (in radians)
+		float fovy = glm::radians(60.0f); //vertical fov (in radians)
 		float aspect = 1.0f; //x / y
 		float near = 0.01f; //near plane
 		//computed from the above:

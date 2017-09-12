@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
+
 glm::mat4 Scene::Transform::make_local_to_world() const {
 	return glm::mat4( //translate
 		glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
@@ -50,8 +52,8 @@ glm::mat4 Scene::Camera::make_projection() const {
 void Scene::render() {
 	for (auto const &object : objects) {
 		//compute modelview+projection matrix for this object:
-		glm::mat4 mvp =
-			  camera.make_projection()
+		glm::mat4 mvp = 
+			camera.make_projection()
 			* camera.transform.make_world_to_local()
 			* object.transform.make_local_to_world();
 
@@ -63,6 +65,6 @@ void Scene::render() {
 		glBindVertexArray(object.vao);
 
 		//draw the object:
-		glDrawArrays(GL_TRIANGLE_STRIP, object.start, object.count);
+		glDrawArrays(GL_TRIANGLES, object.start, object.count);
 	}
 }
