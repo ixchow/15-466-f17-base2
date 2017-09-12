@@ -2,6 +2,7 @@
 #include "GL.hpp"
 #include "Meshes.hpp"
 #include "Scene.hpp"
+#include "read_chunk.hpp"
 
 #include <SDL.h>
 #include <glm/glm.hpp>
@@ -180,36 +181,12 @@ int main(int argc, char **argv) {
 */
 	{ //read objects to add from "scene.blob":
 		std::ifstream file("scene.blob", std::ios::binary);
-		struct ChunkHeader {
-			char magic[4] = {'\0', '\0', '\0', '\0'};
-			uint32_t size = 0;
-		};
-		static_assert(sizeof(ChunkHeader) == 8, "header is packed");
 
 		std::vector< char > strings;
-		{ //read strings chunk:
-			ChunkHeader header;
-			if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
-				throw std::runtime_error("Failed to read strings chunk header");
-			}
-			if (std::string(header.magic,4) != "str0") {
-				throw std::runtime_error("Unexpected magic number in strings chunk");
-			}
-			strings.resize(header.size);
-			if (!file.read(&strings[0], strings.size())) {
-				throw std::runtime_error("Failed to read strings chunk");
-			}
-		}
+		//read strings chunk:
+		read_chunk(file, "str0", &strings);
 
 		{ //read scene chunk, add meshes to scene:
-			ChunkHeader header;
-			if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
-				throw std::runtime_error("Failed to read scene chunk header");
-			}
-			if (std::string(header.magic,4) != "scn0") {
-				throw std::runtime_error("Unexpected magic number in scene chunk");
-			}
-
 			struct SceneEntry {
 				uint32_t name_begin, name_end;
 				glm::vec3 position;
@@ -218,14 +195,8 @@ int main(int argc, char **argv) {
 			};
 			static_assert(sizeof(SceneEntry) == 48, "Scene entry should be packed");
 
-			if (header.size % sizeof(SceneEntry) != 0) {
-				throw std::runtime_error("Size of scene chunk not divisible by 48");
-			}
 			std::vector< SceneEntry > data;
-			data.resize(header.size / sizeof(SceneEntry));
-			if (!file.read(reinterpret_cast< char * >(&data[0]), sizeof(SceneEntry) * data.size())) {
-				throw std::runtime_error("Failed to read scene chunk.");
-			}
+			read_chunk(file, "scn0", &data);
 
 			for (auto const &entry : data) {
 				if (!(entry.name_begin <= entry.name_end && entry.name_end <= strings.size())) {

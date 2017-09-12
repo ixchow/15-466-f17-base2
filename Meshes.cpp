@@ -1,4 +1,5 @@
 #include "Meshes.hpp"
+#include "read_chunk.hpp"
 
 #include <glm/glm.hpp>
 
@@ -10,36 +11,17 @@
 void Meshes::load(std::string const &filename, Attributes const &attributes) {
 	std::ifstream file(filename, std::ios::binary);
 
-	struct ChunkHeader {
-		char magic[4] = {'\0', '\0', '\0', '\0'};
-		uint32_t size = 0;
-	};
-	static_assert(sizeof(ChunkHeader) == 8, "header is packed");
-
 	GLuint vao = 0;
 	GLuint total = 0;
 	{ //read + upload data chunk:
-		ChunkHeader header;
-		if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
-			throw std::runtime_error("Failed to read data chunk header");
-		}
-		if (std::string(header.magic,4) != "v3n3") {
-			throw std::runtime_error("Unexpected magic number in data chunk");
-		}
-
 		struct v3n3 {
 			glm::vec3 v;
 			glm::vec3 n;
 		};
 		static_assert(sizeof(v3n3) == 24, "v3n3 is packed");
-		if (header.size % sizeof(v3n3) != 0) {
-			throw std::runtime_error("Size of v3n3 chunk not divisible by 24");
-		}
 		std::vector< v3n3 > data;
-		data.resize(header.size / sizeof(v3n3));
-		if (!file.read(reinterpret_cast< char * >(&data[0]), sizeof(v3n3) * data.size())) {
-			throw std::runtime_error("Failed to read v3n3 data.");
-		}
+		read_chunk(file, "v3n3", &data);
+
 		//upload data:
 		GLuint buffer = 0;
 		glGenBuffers(1, &buffer);
@@ -66,43 +48,17 @@ void Meshes::load(std::string const &filename, Attributes const &attributes) {
 	}
 
 	std::vector< char > strings;
-	{ //read strings chunk:
-		ChunkHeader header;
-		if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
-			throw std::runtime_error("Failed to read strings chunk header");
-		}
-		if (std::string(header.magic,4) != "str0") {
-			throw std::runtime_error("Unexpected magic number in strings chunk");
-		}
-		strings.resize(header.size);
-		if (!file.read(&strings[0], strings.size())) {
-			throw std::runtime_error("Failed to read strings chunk");
-		}
-	}
+	read_chunk(file, "str0", &strings);
 
 	{ //read index chunk, add to meshes:
-		ChunkHeader header;
-		if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
-			throw std::runtime_error("Failed to read index chunk header");
-		}
-		if (std::string(header.magic,4) != "idx0") {
-			throw std::runtime_error("Unexpected magic number in index chunk");
-		}
-
 		struct IndexEntry {
 			uint32_t name_begin, name_end;
 			uint32_t vertex_start, vertex_count;
 		};
 		static_assert(sizeof(IndexEntry) == 16, "Index entry should be packed");
 
-		if (header.size % sizeof(IndexEntry) != 0) {
-			throw std::runtime_error("Size of index chunk not divisible by 16");
-		}
 		std::vector< IndexEntry > index;
-		index.resize(header.size / sizeof(IndexEntry));
-		if (!file.read(reinterpret_cast< char * >(&index[0]), sizeof(IndexEntry) * index.size())) {
-			throw std::runtime_error("Failed to read index chunk.");
-		}
+		read_chunk(file, "idx0", &index);
 
 		for (auto const &entry : index) {
 			if (!(entry.name_begin <= entry.name_end && entry.name_end <= strings.size())) {

@@ -20,6 +20,7 @@ to_write = [
 	'Land',
 	'Tree',
 	'Water',
+	'Rock',
 ]
 
 #data contains vertex and normal data from the meshes:
