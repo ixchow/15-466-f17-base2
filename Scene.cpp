@@ -51,17 +51,27 @@ glm::mat4 Scene::Camera::make_projection() const {
 
 void Scene::render() {
 	for (auto const &object : objects) {
+		//modelview matrix (local-to-world):
+		glm::mat4 mv = object.transform.make_local_to_world();
+
 		//compute modelview+projection matrix for this object:
 		glm::mat4 mvp = 
 			camera.make_projection()
 			* camera.transform.make_world_to_local()
-			* object.transform.make_local_to_world();
+			* mv;
+
+		//NOTE: inverse cancels out transpose unless there is scale involved
+		glm::mat3 itmv = glm::inverse(glm::transpose(glm::mat3(mv)));
 
 		//set up program uniforms:
 		glUseProgram(object.program);
 		if (object.program_mvp != -1U) {
 			glUniformMatrix4fv(object.program_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 		}
+		if (object.program_itmv != -1U) {
+			glUniformMatrix3fv(object.program_itmv, 1, GL_FALSE, glm::value_ptr(itmv));
+		}
+
 		glBindVertexArray(object.vao);
 
 		//draw the object:

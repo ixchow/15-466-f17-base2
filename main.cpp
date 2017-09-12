@@ -11,6 +11,7 @@
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <fstream>
 
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
@@ -18,7 +19,7 @@ static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
 int main(int argc, char **argv) {
 	//Configuration:
 	struct {
-		std::string title = "Game1: Text/Tiles";
+		std::string title = "Game2: Scene";
 		glm::uvec2 size = glm::uvec2(640, 480);
 	} config;
 
@@ -89,26 +90,30 @@ int main(int argc, char **argv) {
 	GLuint program_Position = 0;
 	GLuint program_Normal = 0;
 	GLuint program_mvp = 0;
+	GLuint program_itmv = 0;
+	GLuint program_to_light = 0;
 	{ //compile shader program:
 		GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER,
 			"#version 330\n"
 			"uniform mat4 mvp;\n"
+			"uniform mat3 itmv;\n"
 			"in vec4 Position;\n"
 			"in vec3 Normal;\n"
 			"out vec3 normal;\n"
 			"void main() {\n"
 			"	gl_Position = mvp * Position;\n"
-			"	normal = Normal;\n"
+			"	normal = itmv * Normal;\n"
 			"}\n"
 		);
 
 		GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER,
 			"#version 330\n"
+			"uniform vec3 to_light;\n"
 			"in vec3 normal;\n"
 			"out vec4 fragColor;\n"
 			"void main() {\n"
-			"	float light = max(0.0, dot(normalize(normal), vec3(0.0, 1.0, 0.0)));\n"
-			"	fragColor = vec4(light * vec3(1.0, 1.0, 0.0), 1.0);\n"
+			"	float light = max(0.0, dot(normalize(normal), to_light));\n"
+			"	fragColor = vec4(light * vec3(1.0, 1.0, 1.0), 1.0);\n"
 			"}\n"
 		);
 
@@ -123,6 +128,11 @@ int main(int argc, char **argv) {
 		//look up uniform locations:
 		program_mvp = glGetUniformLocation(program, "mvp");
 		if (program_mvp == -1U) throw std::runtime_error("no uniform named mvp");
+		program_itmv = glGetUniformLocation(program, "itmv");
+		if (program_itmv == -1U) throw std::runtime_error("no uniform named itmv");
+
+		program_to_light = glGetUniformLocation(program, "to_light");
+		if (program_to_light == -1U) throw std::runtime_error("no uniform named to_light");
 	}
 
 	//------------ meshes ------------
@@ -159,18 +169,79 @@ int main(int argc, char **argv) {
 		object.count = mesh.count;
 		object.program = program;
 		object.program_mvp = program_mvp;
+		object.program_itmv = program_itmv;
 	};
 
+/*
 	add_object("Tree", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
 	add_object("Tree", glm::vec3(1.0f, 0.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
 	add_object("Tree", glm::vec3(0.0f, 1.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
 	add_object("Tree", glm::vec3(1.0f, 1.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
+*/
+	{ //read objects to add from "scene.blob":
+		std::ifstream file("scene.blob", std::ios::binary);
+		struct ChunkHeader {
+			char magic[4] = {'\0', '\0', '\0', '\0'};
+			uint32_t size = 0;
+		};
+		static_assert(sizeof(ChunkHeader) == 8, "header is packed");
 
+		std::vector< char > strings;
+		{ //read strings chunk:
+			ChunkHeader header;
+			if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
+				throw std::runtime_error("Failed to read strings chunk header");
+			}
+			if (std::string(header.magic,4) != "str0") {
+				throw std::runtime_error("Unexpected magic number in strings chunk");
+			}
+			strings.resize(header.size);
+			if (!file.read(&strings[0], strings.size())) {
+				throw std::runtime_error("Failed to read strings chunk");
+			}
+		}
+
+		{ //read scene chunk, add meshes to scene:
+			ChunkHeader header;
+			if (!file.read(reinterpret_cast< char * >(&header), sizeof(header))) {
+				throw std::runtime_error("Failed to read scene chunk header");
+			}
+			if (std::string(header.magic,4) != "scn0") {
+				throw std::runtime_error("Unexpected magic number in scene chunk");
+			}
+
+			struct SceneEntry {
+				uint32_t name_begin, name_end;
+				glm::vec3 position;
+				glm::quat rotation;
+				glm::vec3 scale;
+			};
+			static_assert(sizeof(SceneEntry) == 48, "Scene entry should be packed");
+
+			if (header.size % sizeof(SceneEntry) != 0) {
+				throw std::runtime_error("Size of scene chunk not divisible by 48");
+			}
+			std::vector< SceneEntry > data;
+			data.resize(header.size / sizeof(SceneEntry));
+			if (!file.read(reinterpret_cast< char * >(&data[0]), sizeof(SceneEntry) * data.size())) {
+				throw std::runtime_error("Failed to read scene chunk.");
+			}
+
+			for (auto const &entry : data) {
+				if (!(entry.name_begin <= entry.name_end && entry.name_end <= strings.size())) {
+					throw std::runtime_error("index entry has out-of-range name begin/end");
+				}
+				std::string name(&strings[0] + entry.name_begin, &strings[0] + entry.name_end);
+				add_object(name, entry.position, entry.rotation, entry.scale);
+			}
+		}
+
+	}
 
 	glm::vec2 mouse = glm::vec2(0.0f, 0.0f); //mouse position in [-1,1]x[-1,1] coordinates
 
 	struct {
-		float radius = 10.0f;
+		float radius = 5.0f;
 		float elevation = 0.0f;
 		float azimuth = 0.0f;
 		glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -236,6 +307,8 @@ int main(int argc, char **argv) {
 
 
 		{ //draw game state:
+			glUseProgram(program);
+			glUniform3fv(program_to_light, 1, glm::value_ptr(glm::normalize(glm::vec3(0.0f, 1.0f, 10.0f))));
 			scene.render();
 		}
 
