@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
 	//(transform will be handled in the update function below)
 
 	//add some objects from the mesh library:
-	auto add_object = [&](std::string const &name, glm::vec3 const &position, glm::quat const &rotation, glm::vec3 const &scale) {
+	auto add_object = [&](std::string const &name, glm::vec3 const &position, glm::quat const &rotation, glm::vec3 const &scale) -> Scene::Object & {
 		Mesh const &mesh = meshes.get(name);
 		scene.objects.emplace_back();
 		Scene::Object &object = scene.objects.back();
@@ -171,14 +171,10 @@ int main(int argc, char **argv) {
 		object.program = program;
 		object.program_mvp = program_mvp;
 		object.program_itmv = program_itmv;
+		return object;
 	};
 
-/*
-	add_object("Tree", glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
-	add_object("Tree", glm::vec3(1.0f, 0.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
-	add_object("Tree", glm::vec3(0.0f, 1.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
-	add_object("Tree", glm::vec3(1.0f, 1.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(1.0f));
-*/
+
 	{ //read objects to add from "scene.blob":
 		std::ifstream file("scene.blob", std::ios::binary);
 
@@ -206,8 +202,20 @@ int main(int argc, char **argv) {
 				add_object(name, entry.position, entry.rotation, entry.scale);
 			}
 		}
-
 	}
+
+	//create a weird waving tree stack:
+	std::vector< Scene::Object * > tree_stack;
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(1.0f, 0.0f, 0.2f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.3f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.9f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.9f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.9f)) );
+
+	for (uint32_t i = 1; i < tree_stack.size(); ++i) {
+		tree_stack[i]->transform.set_parent(&tree_stack[i-1]->transform);
+	}
+
+	std::vector< float > wave_acc(tree_stack.size(), 0.0f);
 
 	glm::vec2 mouse = glm::vec2(0.0f, 0.0f); //mouse position in [-1,1]x[-1,1] coordinates
 
@@ -249,10 +257,18 @@ int main(int argc, char **argv) {
 		previous_time = current_time;
 
 		{ //update game state:
-			static float spin = 0.0f;
+			//tree stack:
+			for (uint32_t i = 0; i < tree_stack.size(); ++i) {
+				wave_acc[i] += elapsed * (0.3f + 0.3f * i);
+				wave_acc[i] -= std::floor(wave_acc[i]);
+				float ang = (0.7f * float(M_PI)) * i;
+				tree_stack[i]->transform.rotation = glm::angleAxis(
+					std::cos(wave_acc[i] * 2.0f * float(M_PI)) * (0.2f + 0.1f * i),
+					glm::vec3(std::cos(ang), std::sin(ang), 0.0f)
+				);
+			}
 
-			spin += elapsed * (2.0f * M_PI) / 10.0f;
-
+			//camera:
 			scene.camera.transform.position = camera.radius * glm::vec3(
 				std::cos(camera.elevation) * std::cos(camera.azimuth),
 				std::cos(camera.elevation) * std::sin(camera.azimuth),

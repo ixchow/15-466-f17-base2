@@ -4,15 +4,43 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <vector>
+#include <list>
 
 //Describes a 3D scene for rendering:
 struct Scene {
 	struct Transform {
+		Transform() = default;
+		Transform(Transform &) = delete;
+		~Transform() {
+			while (last_child) {
+				last_child->set_parent(nullptr);
+			}
+			if (parent) {
+				set_parent(nullptr);
+			}
+		}
+
+		//simple specification:
 		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 1.0f);
 		glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
+		//hierarchy information:
+		Transform *parent = nullptr;
+		Transform *last_child = nullptr;
+		Transform *prev_sibling = nullptr;
+		Transform *next_sibling = nullptr;
+		//Generally, you shouldn't manipulate the above pointers directly.
+
+		//Add transform to the child list of 'parent', before child 'before':
+		void set_parent(Transform *parent, Transform *before = nullptr);
+
+		//helper that checks local pointer consistency:
+		void DEBUG_assert_valid_pointers() const;
+
 		//computed from the above:
+		glm::mat4 make_local_to_parent() const;
+		glm::mat4 make_parent_to_local() const;
 		glm::mat4 make_local_to_world() const;
 		glm::mat4 make_world_to_local() const;
 	};
@@ -40,12 +68,11 @@ struct Scene {
 		Transform transform;
 		//light parameters (directional):
 		glm::vec3 intensity = glm::vec3(1.0f, 1.0f, 1.0f); //effectively, color
-		glm::vec3 direction = glm::vec3(0.0f,-1.0f, 0.0f);
 	};
 
 	Camera camera;
-	std::vector< Object > objects;
-	std::vector< Light > lights;
+	std::list< Object > objects;
+	std::list< Light > lights;
 
 	void render();
 };
