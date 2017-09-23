@@ -6,6 +6,8 @@
 #include <vector>
 #include <list>
 
+#undef near //windows.h steps on this
+
 //Describes a 3D scene for rendering:
 struct Scene {
 	struct Transform {

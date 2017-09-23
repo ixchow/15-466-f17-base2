@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <string>
 
 void Meshes::load(std::string const &filename, Attributes const &attributes) {
 	std::ifstream file(filename, std::ios::binary);
