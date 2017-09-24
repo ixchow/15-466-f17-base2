@@ -206,10 +206,10 @@ int main(int argc, char **argv) {
 
 	//create a weird waving tree stack:
 	std::vector< Scene::Object * > tree_stack;
-	tree_stack.emplace_back( &add_object("Tree", glm::vec3(1.0f, 0.0f, 0.2f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.3f)) );
-	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.9f)) );
-	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.9f)) );
-	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(0.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.9f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(1.0f, 0.0f, 0.2f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.3f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.9f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.9f)) );
+	tree_stack.emplace_back( &add_object("Tree", glm::vec3(0.0f, 0.0f, 1.7f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.9f)) );
 
 	for (uint32_t i = 1; i < tree_stack.size(); ++i) {
 		tree_stack[i]->transform.set_parent(&tree_stack[i-1]->transform);
